@@ -1,0 +1,444 @@
+<!DOCTYPE ahtml>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThriftTrade</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e6d9b8; /* Main muted brown/tan theme */
+        }
+        .page {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .splash-page {
+            background: linear-gradient(135deg, #deddda 0%, #cf7f07 100%);
+        }
+        .nav-link.active-link svg {
+            color: #8b4513; /* Muted brown active icon color */
+        }
+        .nav-link.active-link span {
+            color: #8b4513; /* Muted brown active text color */
+        }
+        .nav-link.active-link {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col min-h-screen">
+    <div id="app" class="max-w-md mx-auto w-full bg-white shadow-lg rounded-xl flex flex-col overflow-hidden h-screen">
+
+        <!-- Header -->
+        <header class="p-4 bg-white border-b border-gray-200 flex items-center justify-center">
+            <h1 class="text-xl font-bold text-gray-800">ThriftTrade</h1>
+        </header>
+
+        <!-- Main Content Container -->
+        <main id="main-content" class="flex-1 overflow-y-auto p-4">
+
+            <!-- Splash Page -->
+            <div id="splash-page" class="page active splash-page flex flex-col items-center justify-center text-center p-6 h-full">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">Welcome to ThriftTrade!</h2>
+                <p class="text-gray-600 mb-8 max-w-sm">
+                    Designed and Created by<br>
+                    Chit Ko Ko Lwin (240702404068)<br>
+                    <br>
+                    This app helps you give your old clothes a second life, it lets people trade their old clothes instead of throwing them away, helping everyone get something new to wear and reduce waste.
+                </p>
+                <button id="get-started-btn" class="py-3 px-6 bg-black text-white font-semibold rounded-full shadow-md hover:bg-white hover:text-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black-500 transition-colors duration-200">
+                    Get Started
+                </button>
+            </div>
+
+            <!-- Feed Page -->
+            <div id="feed-page" class="page hidden">
+                <!-- Integrated Search & Filter Section -->
+                <div class="mb-4 p-2 bg-gray-100 rounded-xl shadow-inner flex items-center justify-between space-x-2">
+                    <input type="text" placeholder="Search..." class="flex-1 px-3 py-2 text-sm text-gray-700 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 min-w-0">
+                    <select class="px-3 py-2 text-sm text-gray-700 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <option value="">Category</option>
+                        <option value="shirt">Shirt</option>
+                        <option value="pants">Pants</option>
+                        <option value="jacket">Jacket</option>
+                        <option value="shorts">Shorts</option>
+                    </select>
+                    <select class="px-3 py-2 text-sm text-gray-700 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <option value="">Size</option>
+                        <option value="S">S</option>
+                        <option value="M">M</option>
+                        <option value="L">L</option>
+                        <option value="XL">XL</option>
+                    </select>
+                </div>
+                <!-- Clothing Items Grid -->
+                <div class="grid grid-cols-2 gap-4" id="feed-grid">
+                    <!-- Items will be dynamically loaded here by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Favorites Page -->
+            <div id="favorites-page" class="page hidden p-4">
+                <h2 class="text-xl font-bold mb-4 text-gray-800 text-center">Your Favorites</h2>
+                <div id="favorites-grid" class="grid grid-cols-2 gap-4">
+                    <!-- Favorites will be dynamically loaded here by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Cart Page -->
+            <div id="cart-page" class="page hidden p-4">
+                <h2 class="text-xl font-bold mb-4 text-gray-800 text-center">Your Cart</h2>
+                <div id="cart-grid" class="grid grid-cols-2 gap-4">
+                    <!-- Cart items will be dynamically loaded here by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Upload Page -->
+            <div id="upload-page" class="page hidden">
+                <h2 class="text-xl font-bold mb-4 text-center text-gray-800">Upload Your Item</h2>
+                <div class="p-4 bg-gray-100 rounded-xl shadow-md">
+                    <div class="mb-4 text-center">
+                        <label for="item-image" class="w-full p-6 block text-center text-gray-500 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors duration-200">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0a4 4 0 01-4 4H12a4 4 0 01-4-4m4-12h8m-8-4v8m20-4a8 8 0 10-16 0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+                            </svg>
+                            <p class="mt-2 text-sm">Click to upload image</p>
+                        </label>
+                        <input type="file" id="item-image" accept="image/*" class="hidden">
+                        <img id="image-preview" src="" alt="Image preview" class="mt-4 hidden w-full h-64 object-cover rounded-xl shadow">
+                    </div>
+                    
+                    <div id="details-form" class="hidden">
+                        <h3 class="text-lg font-semibold mb-2 text-gray-800">Item Details</h3>
+                        <div class="mb-4">
+                            <label for="item-type" class="block text-sm font-medium text-gray-700">Item Type</label>
+                            <select id="item-type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <option value="shirt">Shirt</option>
+                                <option value="pants">Pants</option>
+                                <option value="jacket">Jacket</option>
+                                <option value="shorts">Shorts</option>
+                            </select>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label for="shoulder" class="block text-sm font-medium text-gray-700">Shoulder Measurement (cm)</label>
+                                <input type="number" id="shoulder" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="sleeve" class="block text-sm font-medium text-gray-700">Sleeve Measurement (cm)</label>
+                                <input type="number" id="sleeve" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label for="length" class="block text-sm font-medium text-gray-700">Length Measurement (cm)</label>
+                                <input type="number" id="length" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            </div>
+                        </div>
+                        <button id="submit-upload" class="mt-6 w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">Upload Item</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Page -->
+            <div id="profile-page" class="page hidden">
+                <div class="flex flex-col items-center bg-gray-100 p-6 rounded-2xl shadow-lg">
+                    <img src="https://placehold.co/150x150/E2E8F0/4A5568?text=Profile" alt="Profile Picture" class="w-28 h-28 rounded-full border-4 border-white shadow-lg mb-4">
+                    <h2 id="profile-name" class="text-2xl font-bold text-gray-800">John Doe</h2>
+                    <p id="profile-phone" class="text-gray-500">+123 456 7890</p>
+                    <div class="mt-4 text-center bg-white p-4 rounded-xl shadow-md">
+                        <p class="text-lg font-semibold text-gray-700">ThriftTrade Score</p>
+                        <p id="profile-score" class="text-3xl font-extrabold text-blue-600">42</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Notification Modal -->
+            <div id="notification-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center p-4">
+              <div class="bg-white rounded-lg p-6 shadow-xl max-w-sm w-full">
+                <p id="notification-text" class="text-center text-gray-800 mb-4"></p>
+                <button onclick="closeNotification()" class="w-full py-2 px-4 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600">Close</button>
+              </div>
+            </div>
+            
+        </main>
+
+        <!-- Bottom Navigation Bar -->
+        <footer class="p-4 bg-white border-t border-gray-200 sticky bottom-0">
+            <nav class="flex justify-around items-center text-gray-500">
+                <a href="#" id="feed-link" class="nav-link flex flex-col items-center text-sm font-medium hover:text-gray-900 transition-colors duration-200">
+                    <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                    <span class="mt-1">Feed</span>
+                </a>
+                <a href="#" id="favorites-link" class="nav-link flex flex-col items-center text-sm font-medium hover:text-gray-900 transition-colors duration-200">
+                    <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 21.35l-1.84-1.68C5.46 15.34 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.46 6.84-8.16 11.17L12 21.35z"/></svg>
+                    <span class="mt-1">Favorites</span>
+                </a>
+                <a href="#" id="upload-link" class="nav-link flex flex-col items-center text-sm font-medium hover:text-gray-900 transition-colors duration-200">
+                    <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8zM12 7a1 1 0 0 0-1 1v3a1 1 0 0 0 2 0V8a1 1 0 0 0-1-1zm0 8a1 1 0 1 0 1 1 1 1 0 0 0-1-1z"/></svg>
+                    <span class="mt-1">Upload</span>
+                </a>
+                <a href="#" id="cart-link" class="nav-link flex flex-col items-center text-sm font-medium hover:text-gray-900 transition-colors duration-200">
+                    <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2zm-8.81-8h7.4l2.25 4.96c.26.58.7.99 1.15 1.04H18c.28 0 .5-.22.5-.5s-.22-.5-.5-.5h-2.1c-.24-.48-.68-.8-1.2-.8-.47 0-.89.28-1.1.7L12.3 14H6.2c-.51 0-.96-.35-1.1-.85L2.5 5.24V4h-.5c-.28 0-.5-.22-.5-.5S-.28 3 0 3h2.5c.34 0 .64.2.78.49L5 9h5.18l-1.96 4.36L7 11.23V10zm11.33-2H9.28l.84-1.85a.99.99 0 011.1-.55l6.58 3.12z"/></svg>
+                    <span class="mt-1">Cart</span>
+                </a>
+                <a href="#" id="profile-link" class="nav-link flex flex-col items-center text-sm font-medium hover:text-gray-900 transition-colors duration-200">
+                    <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8zM12 6a4 4 0 1 0 4 4 4 4 0 0 0-4-4zm-4 8.71A6 6 0 0 1 12 14a6 6 0 0 1 4 1.71A8 8 0 0 0 4 20a8 8 0 0 0 8 8z"/></svg>
+                    <span class="mt-1">Profile</span>
+                </a>
+            </nav>
+        </footer>
+    </div>
+
+    <script>
+        // Item data
+        const items = [{
+            id: '1',
+            name: 'Vintage Striped Shirt',
+            image: 'image1.png'
+        }, {
+            id: '2',
+            name: 'Vintage Leather Jacket',
+            image: 'image2.png'
+        }, {
+            id: '3',
+            name: 'Vintage Plaid Trousers',
+            image: 'image3.png'
+        }, {
+            id: '4',
+            name: 'Retro Denim Shorts',
+            image: 'image4.png'
+        }, {
+            id: '5',
+            name: 'Vintage Casual Dress',
+            image: 'image5.png'
+        }, {
+            id: '6',
+            name: 'Vintage Leather Shoes',
+            image: 'image6.png'
+        }];
+
+        // Mock measurements
+        const measurements = {
+            '1': 'Shoulder: 45cm, Sleeve: 62cm, Length: 70cm',
+            '2': 'Shoulder: 50cm, Sleeve: 65cm, Length: 75cm',
+            '3': 'Waist: 75cm, Inseam: 78cm, Length: 100cm',
+            '4': 'Waist: 80cm, Inseam: 15cm, Length: 40cm',
+            '5': 'Bust: 95cm, Waist: 80cm, Length: 110cm',
+            '6': 'Length: 28cm'
+        };
+
+        let favorites = [];
+        let cart = [];
+
+        // DOM elements
+        const splashPage = document.getElementById('splash-page');
+        const getStartedBtn = document.getElementById('get-started-btn');
+        const feedPage = document.getElementById('feed-page');
+        const favoritesPage = document.getElementById('favorites-page');
+        const cartPage = document.getElementById('cart-page');
+        const uploadPage = document.getElementById('upload-page');
+        const profilePage = document.getElementById('profile-page');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const feedGrid = document.getElementById('feed-grid');
+        const favoritesGrid = document.getElementById('favorites-grid');
+        const cartGrid = document.getElementById('cart-grid');
+        const itemImageInput = document.getElementById('item-image');
+        const imagePreview = document.getElementById('image-preview');
+        const detailsForm = document.getElementById('details-form');
+        const submitUploadBtn = document.getElementById('submit-upload');
+        const notificationModal = document.getElementById('notification-modal');
+        const notificationText = document.getElementById('notification-text');
+        
+        // Function to show a specific page and update active navigation link
+        function showPage(pageId) {
+            // Hide all pages
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.add('hidden'));
+
+            // Show the selected page
+            document.getElementById(pageId).classList.remove('hidden');
+
+            // Update active link styling
+            navLinks.forEach(link => {
+                link.classList.remove('active-link', 'text-gray-900');
+                link.classList.add('text-gray-500');
+                link.querySelector('svg').style.color = '';
+            });
+
+            // The splash page does not have a navigation link
+            if (pageId !== 'splash-page') {
+                const activeLink = document.getElementById(pageId.replace('-page', '-link'));
+                activeLink.classList.add('active-link', 'text-gray-900');
+                activeLink.classList.remove('text-gray-500');
+                activeLink.querySelector('svg').style.color = '#8b4513';
+            }
+
+            // Render content for specific pages
+            if (pageId === 'favorites-page') {
+                renderItems(favorites, favoritesGrid);
+            } else if (pageId === 'cart-page') {
+                renderItems(cart, cartGrid);
+            }
+        }
+
+        // Function to create an item card HTML element
+        function createItemCard(item) {
+            const isFavorite = favorites.some(fav => fav.id === item.id);
+            const isInCart = cart.some(cartItem => cartItem.id === item.id);
+            const card = document.createElement('div');
+            card.className = 'bg-gray-100 rounded-xl shadow-md overflow-hidden transform transition-transform duration-200 hover:scale-105';
+            card.setAttribute('data-item-id', item.id);
+            card.setAttribute('data-item-name', item.name);
+            card.innerHTML = `
+                <img src="${item.image}" alt="${item.name}" class="w-full h-40 object-cover">
+                <div class="p-3">
+                    <h3 class="text-sm font-semibold text-gray-800 truncate mb-1">${item.name}</h3>
+                    <div class="flex items-center justify-between">
+                        <p class="text-xs text-gray-500">Measurements: ${measurements[item.id] || 'N/A'}</p>
+                        <div class="flex space-x-2 flex-shrink-0">
+                            <button class="add-to-favorites text-gray-400 hover:text-red-500 transition-colors duration-200 ${isFavorite ? 'text-red-500' : ''}">
+                                <svg class="h-5 w-5 fill-current" viewBox="0 0 24 24"><path d="M12 21.35l-1.84-1.68C5.46 15.34 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.46 6.84-8.16 11.17L12 21.35z"/></svg>
+                            </button>
+                            <button class="add-to-cart text-gray-400 hover:text-blue-500 transition-colors duration-200 ${isInCart ? 'text-blue-500' : ''}">
+                                <svg class="h-5 w-5 fill-current" viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2zm-8.81-8h7.4l2.25 4.96c.26.58.7.99 1.15 1.04H18c.28 0 .5-.22.5-.5s-.22-.5-.5-.5h-2.1c-.24-.48-.68-.8-1.2-.8-.47 0-.89.28-1.1.7L12.3 14H6.2c-.51 0-.96-.35-1.1-.85L2.5 5.24V4h-.5c-.28 0-.5-.22-.5-.5S-.28 3 0 3h2.5c.34 0 .64.2.78.49L5 9h5.18l-1.96 4.36L7 11.23V10zm11.33-2H9.28l.84-1.85a.99.99 0 011.1-.55l6.58 3.12z"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            return card;
+        }
+
+        // Function to render items on a page
+        function renderItems(itemsArray, container) {
+            container.innerHTML = ''; // Clear previous items
+            if (itemsArray.length === 0) {
+                container.innerHTML = `<div class="col-span-2 text-center text-gray-500 p-4">You haven't added any items yet.</div>`;
+            } else {
+                itemsArray.forEach(item => {
+                    const card = createItemCard(item);
+                    container.appendChild(card);
+                });
+            }
+            addCardEventListeners();
+        }
+
+        // Add item card event listeners
+        function addCardEventListeners() {
+            document.querySelectorAll('.add-to-favorites').forEach(button => {
+                button.onclick = (e) => {
+                    const card = e.currentTarget.closest('[data-item-id]');
+                    const itemId = card.getAttribute('data-item-id');
+                    const item = items.find(i => i.id === itemId);
+                    
+                    if (favorites.some(fav => fav.id === itemId)) {
+                        favorites = favorites.filter(fav => fav.id !== itemId);
+                        button.classList.remove('text-red-500');
+                        showNotification('Item removed from favorites!');
+                    } else {
+                        favorites.push(item);
+                        button.classList.add('text-red-500');
+                        showNotification('Item added to favorites!');
+                    }
+                };
+            });
+
+            document.querySelectorAll('.add-to-cart').forEach(button => {
+                button.onclick = (e) => {
+                    const card = e.currentTarget.closest('[data-item-id]');
+                    const itemId = card.getAttribute('data-item-id');
+                    const item = items.find(i => i.id === itemId);
+
+                    if (cart.some(cartItem => cartItem.id === itemId)) {
+                        cart = cart.filter(cartItem => cartItem.id !== itemId);
+                        button.classList.remove('text-blue-500');
+                        showNotification('Item removed from cart!');
+                    } else {
+                        cart.push(item);
+                        button.classList.add('text-blue-500');
+                        showNotification('Item added to cart!');
+                    }
+                };
+            });
+        }
+
+        // Set up event listeners for navigation links
+        document.getElementById('feed-link').addEventListener('click', (e) => {
+            e.preventDefault();
+            showPage('feed-page');
+        });
+
+        document.getElementById('favorites-link').addEventListener('click', (e) => {
+            e.preventDefault();
+            showPage('favorites-page');
+        });
+
+        document.getElementById('upload-link').addEventListener('click', (e) => {
+            e.preventDefault();
+            showPage('upload-page');
+        });
+
+        document.getElementById('cart-link').addEventListener('click', (e) => {
+            e.preventDefault();
+            showPage('cart-page');
+        });
+
+        document.getElementById('profile-link').addEventListener('click', (e) => {
+            e.preventDefault();
+            showPage('profile-page');
+        });
+
+        // Event listener for image upload
+        itemImageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    imagePreview.src = event.target.result;
+                    imagePreview.classList.remove('hidden');
+                    detailsForm.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Event listener for upload button
+        submitUploadBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Here you would handle the actual data submission
+            showNotification('Item uploaded successfully!');
+        });
+
+        // Event listener for the "Get Started" button
+        getStartedBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            showPage('feed-page');
+        });
+
+        // Function to show a custom notification modal
+        function showNotification(message) {
+          notificationText.textContent = message;
+          notificationModal.style.display = 'flex';
+        }
+
+        // Function to close the notification modal
+        function closeNotification() {
+          notificationModal.style.display = 'none';
+        }
+
+        // Initial page load
+        function initializeApp() {
+            renderItems(items, feedGrid);
+            showPage('splash-page');
+        }
+        initializeApp();
+    </script>
+</body>
+</html>
